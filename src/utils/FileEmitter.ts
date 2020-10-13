@@ -46,8 +46,20 @@ function generateAssetFileName(
 			{
 				hash() {
 					const hash = createHash();
+					console.log(
+						'rollup/FileEmitters.ts generateASsetFileName() name:',
+						name,
+						'emittedName:',
+						emittedName
+					);
 					hash.update(emittedName);
 					hash.update(':');
+					console.log(
+						'rollup/FileEmitters.ts generateASsetFileName() name:',
+						name,
+						'source:',
+						source
+					);
 					hash.update(source);
 					return hash.digest('hex').substr(0, 8);
 				},
@@ -258,6 +270,12 @@ export class FileEmitter {
 		let referenceId: string | undefined;
 		do {
 			const hash = createHash();
+			console.log(
+				'rollup/FileEmitters.ts assignReferenceId() idBase:',
+				idBase,
+				'referenceId:',
+				referenceId
+			);
 			if (referenceId) {
 				hash.update(referenceId);
 			} else {

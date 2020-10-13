@@ -520,8 +520,26 @@ export default class Chunk {
 				return augmentation;
 			}
 		);
+		console.log('rollup/Chunks.ts getRenderedHash() hashAugmentation:', hashAugmentation);
 		hash.update(hashAugmentation);
+
+		console.log(
+			'rollup/Chunks.ts getRenderedHash() renderedSource:',
+			this.renderedSource!.toString()
+		);
 		hash.update(this.renderedSource!.toString());
+
+		console.log(
+			'rollup/Chunks.ts getRenderedHash() exportNames.map:',
+			this.getExportNames()
+				.map(exportName => {
+					const variable = this.exportsByName[exportName];
+					return `${relativeId((variable.module as Module).id).replace(/\\/g, '/')}:${
+						variable.name
+					}:${exportName}`;
+				})
+				.join(',')
+		);
 		hash.update(
 			this.getExportNames()
 				.map(exportName => {
@@ -816,16 +834,37 @@ export default class Chunk {
 		existingNames: Record<string, any>
 	): string {
 		const hash = createHash();
+		console.log(
+			'rollup/Chunks.ts computeContentHashWithDependencies() addons:',
+			[addons.intro, addons.outro, addons.banner, addons.footer].map(addon => addon || '').join(':')
+		);
 		hash.update(
 			[addons.intro, addons.outro, addons.banner, addons.footer].map(addon => addon || '').join(':')
+		);
+
+		console.log(
+			'rollup/Chunks.ts computeContentHashWithDependencies() options.format:',
+			options.format as string
 		);
 		hash.update(options.format as string);
 		const dependenciesForHashing = new Set<Chunk | ExternalModule>([this]);
 		for (const current of dependenciesForHashing) {
 			if (current instanceof ExternalModule) {
+				console.log(
+					'rollup/Chunks.ts computeContentHashWithDependencies() external module renderPath:',
+					current.renderPath
+				);
 				hash.update(':' + current.renderPath);
 			} else {
+				console.log(
+					'rollup/Chunks.ts computeContentHashWithDependencies() getRenderedHash():',
+					this.getRenderedHash()
+				);
 				hash.update(current.getRenderedHash());
+				console.log(
+					'rollup/Chunks.ts computeContentHashWithDependencies() generateId():',
+					current.generateId(addons, options, existingNames, false)
+				);
 				hash.update(current.generateId(addons, options, existingNames, false));
 			}
 			if (current instanceof ExternalModule) continue;
