@@ -536,7 +536,7 @@ export default class Chunk {
 					const variable = this.exportsByName[exportName];
 					return `${relativeId((variable.module as Module).id).replace(/\\/g, '/')}:${
 						variable.name
-					}:${exportName}`.replace(/\s/g, '');
+					}:${exportName}`.replace(/[^\x01-\x7F]/g, '');
 				})
 				.join(',')
 		);
@@ -546,7 +546,7 @@ export default class Chunk {
 					const variable = this.exportsByName[exportName];
 					return `${relativeId((variable.module as Module).id).replace(/\\/g, '/')}:${
 						variable.name
-					}:${exportName}`.replace(/\s/g, '');
+					}:${exportName}`.replace(/[^\x01-\x7F]/g, '');
 				})
 				.join(',')
 		);
