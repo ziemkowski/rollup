@@ -525,9 +525,9 @@ export default class Chunk {
 
 		console.log(
 			'rollup/Chunks.ts getRenderedHash() renderedSource:',
-			this.renderedSource!.toString()
+			this.renderedSource!.toString().replace(/[^\x20-\x7E]/g, '')
 		);
-		hash.update(this.renderedSource!.toString());
+		hash.update(this.renderedSource!.toString().replace(/[^\x20-\x7E]/g, ''));
 
 		console.log(
 			'rollup/Chunks.ts getRenderedHash() exportNames.map:',
@@ -536,7 +536,7 @@ export default class Chunk {
 					const variable = this.exportsByName[exportName];
 					return `${relativeId((variable.module as Module).id).replace(/\\/g, '/')}:${
 						variable.name
-					}:${exportName}`.replace(/[^\x01-\x7F]/g, '');
+					}:${exportName}`.replace(/[^\x20-\x7E]/g, '');
 				})
 				.join(',')
 		);
@@ -546,7 +546,7 @@ export default class Chunk {
 					const variable = this.exportsByName[exportName];
 					return `${relativeId((variable.module as Module).id).replace(/\\/g, '/')}:${
 						variable.name
-					}:${exportName}`.replace(/[^\x01-\x7F]/g, '');
+					}:${exportName}`.replace(/[^\x20-\x7E]/g, '');
 				})
 				.join(',')
 		);
