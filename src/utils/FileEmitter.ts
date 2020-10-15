@@ -50,17 +50,17 @@ function generateAssetFileName(
 						'rollup/FileEmitters.ts generateASsetFileName() name:',
 						name,
 						'emittedName:',
-						emittedName
+						encodeURI(emittedName)
 					);
-					hash.update(emittedName);
+					hash.update(encodeURI(emittedName));
 					hash.update(':');
 					console.log(
 						'rollup/FileEmitters.ts generateASsetFileName() name:',
 						name,
 						'source:',
-						source
+						encodeURI(JSON.stringify(source))
 					);
-					hash.update(source);
+					hash.update(encodeURI(JSON.stringify(source)));
 					return hash.digest('hex').substr(0, 8);
 				},
 				ext: () => extname(emittedName).substr(1),

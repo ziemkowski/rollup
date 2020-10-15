@@ -509,48 +509,57 @@ export default class Chunk {
 	getRenderedHash(): string {
 		if (this.renderedHash) return this.renderedHash;
 		const hash = createHash();
-		const hashAugmentation = this.pluginDriver.hookReduceValueSync(
-			'augmentChunkHash',
-			'',
-			[this.getChunkInfo()],
-			(augmentation, pluginHash) => {
-				if (pluginHash) {
-					augmentation += pluginHash;
+		const hashAugmentation = encodeURI(
+			this.pluginDriver.hookReduceValueSync(
+				'augmentChunkHash',
+				'',
+				[this.getChunkInfo()],
+				(augmentation, pluginHash) => {
+					if (pluginHash) {
+						augmentation += pluginHash;
+					}
+					return augmentation;
 				}
-				return augmentation;
-			}
+			)
 		);
 		console.log('rollup/Chunks.ts getRenderedHash() hashAugmentation:', hashAugmentation);
 		hash.update(hashAugmentation);
 
 		console.log(
 			'rollup/Chunks.ts getRenderedHash() renderedSource:',
-			this.renderedSource!.toString().replace(/[^\x20-\x7E]/g, '')
+			encodeURI(this.renderedSource!.toString().replace(/[^\x20-\x7E]/g, ''))
 		);
-		hash.update(this.renderedSource!.toString().replace(/[^\x20-\x7E]/g, ''));
+		hash.update(encodeURI(this.renderedSource!.toString().replace(/[^\x20-\x7E]/g, '')));
 
 		console.log(
 			'rollup/Chunks.ts getRenderedHash() exportNames.map:',
-			this.getExportNames()
-				.map(exportName => {
-					const variable = this.exportsByName[exportName];
-					return `${relativeId((variable.module as Module).id).replace(/\\/g, '/')}:${
-						variable.name
-					}:${exportName}`.replace(/[^\x20-\x7E]/g, '');
-				})
-				.join(',')
+			encodeURI(
+				this.getExportNames()
+					.map(exportName => {
+						const variable = this.exportsByName[exportName];
+						return `${relativeId((variable.module as Module).id).replace(/\\/g, '/')}:${
+							variable.name
+						}:${exportName}`.replace(/[^\x20-\x7E]/g, '');
+					})
+					.join(',')
+			)
 		);
 		hash.update(
-			this.getExportNames()
-				.map(exportName => {
-					const variable = this.exportsByName[exportName];
-					return `${relativeId((variable.module as Module).id).replace(/\\/g, '/')}:${
-						variable.name
-					}:${exportName}`.replace(/[^\x20-\x7E]/g, '');
-				})
-				.join(',')
+			encodeURI(
+				this.getExportNames()
+					.map(exportName => {
+						const variable = this.exportsByName[exportName];
+						return `${relativeId((variable.module as Module).id).replace(/\\/g, '/')}:${
+							variable.name
+						}:${exportName}`.replace(/[^\x20-\x7E]/g, '');
+					})
+					.join(',')
+			)
 		);
-		return (this.renderedHash = hash.digest('hex'));
+		this.renderedHash = hash.digest('hex');
+		console.log('rollup/Chunks.ts getRenderedHash() returning:', this.renderedHash);
+
+		return this.renderedHash;
 	}
 
 	getVariableExportName(variable: Variable): string {
@@ -844,28 +853,28 @@ export default class Chunk {
 
 		console.log(
 			'rollup/Chunks.ts computeContentHashWithDependencies() options.format:',
-			options.format as string
+			encodeURI(options.format as string)
 		);
-		hash.update(options.format as string);
+		hash.update(encodeURI(options.format as string));
 		const dependenciesForHashing = new Set<Chunk | ExternalModule>([this]);
 		for (const current of dependenciesForHashing) {
 			if (current instanceof ExternalModule) {
 				console.log(
 					'rollup/Chunks.ts computeContentHashWithDependencies() external module renderPath:',
-					current.renderPath
+					encodeURI(current.renderPath)
 				);
-				hash.update(':' + current.renderPath);
+				hash.update(':' + encodeURI(current.renderPath));
 			} else {
 				console.log(
 					'rollup/Chunks.ts computeContentHashWithDependencies() getRenderedHash():',
 					this.getRenderedHash()
 				);
-				hash.update(current.getRenderedHash());
+				hash.update(encodeURI(current.getRenderedHash()));
 				console.log(
 					'rollup/Chunks.ts computeContentHashWithDependencies() generateId():',
-					current.generateId(addons, options, existingNames, false)
+					encodeURI(current.generateId(addons, options, existingNames, false))
 				);
-				hash.update(current.generateId(addons, options, existingNames, false));
+				hash.update(encodeURI(current.generateId(addons, options, existingNames, false)));
 			}
 			if (current instanceof ExternalModule) continue;
 			for (const dependency of [...current.dependencies, ...current.dynamicDependencies]) {
